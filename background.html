@@ -1,0 +1,47 @@
+<html><head>
+<script src="jquery-1.5.min.js"></script>
+<script type="text/javascript">
+
+var lastValue = "";
+var lastCode  = 0;
+
+var refreshPeriod = 3600000; // 3600 seconds = 1 hour
+
+function refresh() {
+	$.ajax({ type: "GET", url: "http://developers.styletap.com/whatmonsales.php?cycle=(year~YTD,,comp~YTD,last~30,,comp~MTD,comp~prevMTD,last~7,comp~7,)", success: handleUpdate, error: handleFailure });
+	setTimeout("refresh()", refreshPeriod);
+}
+
+function handleUpdate(data) {
+	$(data).find('text').each(function() { lastValue = $(this).text(); });
+	$(data).find('code').each(function() { lastCode  = $(this).text(); });
+
+	console.log([lastValue, lastCode]);
+
+	if(lastCode == 0) {
+		chrome.browserAction.setIcon({ path: "green.png" });
+	} else if(lastCode == 1) {
+		chrome.browserAction.setIcon({ path: "yellow.png" });
+	} else {
+		chrome.browserAction.setIcon({ path: "red.png" });
+	}
+}
+
+
+function handleFailure(xhr, textStatus, errorThrown) {
+	chrome.browserAction.setIcon({ path: "red.png" });
+	lastValue = "chromemon error: " + textStatus;
+	lastCode = 2;
+}
+
+function onRequest(request, sender, callback) {
+	console.log("onRequest");
+	callback({ code: lastCode, value: lastValue});
+}
+ 
+chrome.extension.onRequest.addListener(onRequest);
+
+refresh();
+
+</script></head><body></body></html>
+

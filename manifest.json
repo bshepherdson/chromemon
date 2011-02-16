@@ -1,0 +1,15 @@
+{
+	"name": "ChromeMon",
+	"version": "0.1",
+	"description": "Whatmon-compatible monitoring tool",
+	"browser_action": {
+		"default_icon": "green.png",
+		"default_title": "ChromeMon",
+		"default_popup": "popup.html"
+	},
+	"background_page": "background.html",
+	"permissions": [
+		"http://*/",
+		"https://*/"
+	]
+}
