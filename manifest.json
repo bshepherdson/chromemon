@@ -1,6 +1,9 @@
 {
 	"name": "WhatMon for Chrome",
-	"version": "0.3",
+	"version": "0.3.1",
+	"icons": {
+		"128": "icon.png"
+	},
 	"description": "Whatmon-compatible monitoring tool",
 	"browser_action": {
 		"default_icon": "green.png",
