@@ -1,10 +1,10 @@
 {
-	"name": "ChromeMon",
+	"name": "WhatMon for Chrome",
 	"version": "0.3",
 	"description": "Whatmon-compatible monitoring tool",
 	"browser_action": {
 		"default_icon": "green.png",
-		"default_title": "ChromeMon",
+		"default_title": "WhatMon Chrome",
 		"default_popup": "popup.html"
 	},
 	"background_page": "background.html",
