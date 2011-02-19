@@ -10,18 +10,21 @@ function loadData() {
 function dataReceived(result) {
 	console.log(result);
 	var mon = $("#mon");
-	mon.removeClass();
-	if(result.code == 0) {
-		mon.addClass("green");
-		chrome.browserAction.setIcon({ path: "green.png" });
-	} else if(result.code == 1) {
-		mon.addClass("yellow");
-		chrome.browserAction.setIcon({ path: "yellow.png" });
-	} else {
-		mon.addClass("red");
-		chrome.browserAction.setIcon({ path: "red.png" });
+	tableHtml = "";
+	for(var i = 0; i < 5; i++) {
+		if(localStorage['urls'+i]) {
+			var color = "red";
+			if(result.code[i] == 1) color = "yellow";
+			if(result.code[i] == 0) color = "green";
+
+			tableHtml += "<tr class=\""+color+"\">";
+			tableHtml += "<td>" + (localStorage['names'+i] ? localStorage['names'+i] : localStorage['urls'+i]) + "</td>";
+			tableHtml += "<td>" + result.value[i] + "</td>";
+			tableHtml += "</tr>";
+		}
 	}
-	mon.html(result.value);
+
+	mon.html(tableHtml);
 	$("#updating").addClass("hidden");
 }
 

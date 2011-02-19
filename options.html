@@ -1,0 +1,51 @@
+<html><head>
+<title>ChromeMon Options</title>
+<script src="jquery-1.5.min.js"></script>
+<script type="text/Javascript">
+
+function save_options() {
+	for(var i = 0; i < 5; i++) {
+		localStorage['names'+i] = $("#name"+i).attr('value');
+		localStorage['urls'+i] = $("#url"+i).attr('value');
+		localStorage['intervals'+i] = $("#interval"+i).attr('value');
+	}
+
+	$("#status").html('Saved');
+	setTimeout(function() { $("#status").html(""); }, 1000);
+	chrome.extension.sendRequest({ restart: 1 }, function() { });
+}
+
+$("document").ready(function() {
+	for(var i = 0; i < 5; i++) {
+		if(localStorage['urls'+i]) {
+			$("#name"+i).attr('value', localStorage['names'+i]);
+			$("#url"+i).attr('value', localStorage['urls'+i]);
+			$("#interval"+i).attr('value', localStorage['intervals'+i]);
+		}
+	}
+});
+
+</script></head>
+
+<body>
+<h1>ChromeMon Options</h1>
+
+<p>Enter up to five URLs to monitor, and the interval between updates for each (in seconds).</p>
+<table border=0>
+	<tr><td><b>Name</b></td><td><b>URL</b></td><td><b>Interval</b></td></tr>
+	<tr><td><input id="name0" type="text" size=20 maxlength=100></td><td><input id="url0" type="text" size=60 maxlength=1000></td><td><input id="interval0" type="text" size=10 maxlength=10></td></tr>
+	<tr><td><input id="name1" type="text" size=20 maxlength=100></td><td><input id="url1" type="text" size=60 maxlength=1000></td><td><input id="interval1" type="text" size=10 maxlength=10></td></tr>
+	<tr><td><input id="name2" type="text" size=20 maxlength=100></td><td><input id="url2" type="text" size=60 maxlength=1000></td><td><input id="interval2" type="text" size=10 maxlength=10></td></tr>
+	<tr><td><input id="name3" type="text" size=20 maxlength=100></td><td><input id="url3" type="text" size=60 maxlength=1000></td><td><input id="interval3" type="text" size=10 maxlength=10></td></tr>
+	<tr><td><input id="name4" type="text" size=20 maxlength=100></td><td><input id="url4" type="text" size=60 maxlength=1000></td><td><input id="interval4" type="text" size=10 maxlength=10></td></tr>
+</table>
+
+<p>
+<input type="button" value="Save" onclick="save_options()">
+</p>
+<div id="status"></div>
+
+</body></html>
+
+
+

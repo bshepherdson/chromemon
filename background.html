@@ -2,46 +2,80 @@
 <script src="jquery-1.5.min.js"></script>
 <script type="text/javascript">
 
-var lastValue = "";
-var lastCode  = 0;
+var lastValues = [];
+var lastCodes = [];
 
-var refreshPeriod = 3600000; // 3600 seconds = 1 hour
+var timeouts = [];
 
-function refresh() {
-	$.ajax({ type: "GET", url: "http://developers.styletap.com/whatmonsales.php?cycle=(year~YTD,,comp~YTD,last~30,,comp~MTD,comp~prevMTD,last~7,comp~7,)", success: handleUpdate, error: handleFailure });
-	setTimeout("refresh()", refreshPeriod);
+function bind(f, i) {
+	return function(data) { f(i, data); }
 }
 
-function handleUpdate(data) {
-	$(data).find('text').each(function() { lastValue = $(this).text(); });
-	$(data).find('code').each(function() { lastCode  = $(this).text(); });
+function refresh(i) {
+	if(localStorage['urls'+i] && localStorage['intervals'+i]) {
+		$.ajax({ type: "GET", cache: false, url: localStorage['urls'+i], success: bind(handleUpdate, i), error: function(xhr, t, e) { handleFailure(i, xhr, t, e); } });
+		timeouts[i] = setTimeout(function() { refresh(i); }, localStorage['intervals'+i] * 1000);
+	}
+}
 
-	console.log([lastValue, lastCode]);
+function handleUpdate(i, data) {
+	$(data).find('text').each(function() { lastValues[i] = $(this).text(); });
+	$(data).find('code').each(function() { lastCodes[i]  = $(this).text(); });
 
-	if(lastCode == 0) {
+	updateIcon();
+}
+
+
+function handleFailure(i, xhr, textStatus, errorThrown) {
+	lastValues[i] = "chromemon error: " + textStatus;
+	lastCodes[i] = 2;
+
+	updateIcon();
+}
+
+function updateIcon() { 
+	var max = 0;
+	for(var j = 0; j < 5; j++) {
+		if(localStorage['urls'+j] && lastCodes[j] > max) {
+			max = lastCodes[j];
+		}
+	}
+
+	if(max == 0) {
 		chrome.browserAction.setIcon({ path: "green.png" });
-	} else if(lastCode == 1) {
+	} else if(max == 1) {
 		chrome.browserAction.setIcon({ path: "yellow.png" });
 	} else {
 		chrome.browserAction.setIcon({ path: "red.png" });
 	}
 }
 
-
-function handleFailure(xhr, textStatus, errorThrown) {
-	chrome.browserAction.setIcon({ path: "red.png" });
-	lastValue = "chromemon error: " + textStatus;
-	lastCode = 2;
-}
-
 function onRequest(request, sender, callback) {
-	console.log("onRequest");
-	callback({ code: lastCode, value: lastValue});
+	if(request.restart) {
+		restart();
+		callback({});
+	} else {
+		callback({ code: lastCodes, value: lastValues});
+	}
 }
  
-chrome.extension.onRequest.addListener(onRequest);
+function restart() {
+	for (var i = 0; i < 5; i++) {
+		if(timeouts[i]) {
+			clearTimeout(timeouts[i]);
+		}
+	}
 
-refresh();
+	for (var i = 0; i < 5; i++) {
+		refresh(i);
+	}
+}
+
+$("document").ready(function() {
+	chrome.extension.onRequest.addListener(onRequest);
+
+	restart();
+});
 
 </script></head><body></body></html>
 
